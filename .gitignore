@@ -163,7 +163,7 @@ cython_debug/
 .vscode/
 
 # Configuration files
-zai_config.json
+clazai.json
 
 # Claude configuration directory
 .claude/

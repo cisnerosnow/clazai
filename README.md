@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="logo_clazai.png" alt="clazai logo" width="150"/>
+</p>
+
 # clazai
 
 **claude code to z.ai toggle**
@@ -33,7 +37,7 @@ Una aplicación GUI para configurar e integrar Z.AI con Claude Code fácilmente.
 
 2. Ejecuta la aplicación:
    ```bash
-   python zai_config.py
+   python clazai.py
    ```
 
 ## 📖 Cómo usar
@@ -73,24 +77,24 @@ Al activar Z.AI, el programa configura automáticamente las siguientes variables
         "ANTHROPIC_AUTH_TOKEN": "tu_token_aqui",
         "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
         "API_TIMEOUT_MS": "3000000",
-        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-4.5-air",
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.6",
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.6"
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-4.7",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.7",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.7"
     }
 }
 ```
 
 ## 📁 Archivos
 
-- **`zai_config.py`**: Aplicación principal
-- **`zai_config.json`**: Archivo local que almacena tu token API (creado automáticamente)
+- **`clazai.py`**: Aplicación principal
+- **`clazai.json`**: Archivo local que almacena tu token API (creado automáticamente)
 - **`~/.claude/settings.json`**: Configuración de Claude Code (modificado automáticamente)
 
 ## 🔒 Seguridad
 
-- El token se almacena localmente en `zai_config.json`
+- El token se almacena localmente en `clazai.json`
 - El token está oculto por defecto en la interfaz
-- Puedes borrar el archivo `zai_config.json` en cualquier momento
+- Puedes borrar el archivo `clazai.json` en cualquier momento
 
 ## 🤝 Contribuir
 

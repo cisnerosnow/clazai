@@ -3,48 +3,153 @@ from tkinter import ttk, messagebox
 import json
 import os
 from pathlib import Path
+from PIL import Image, ImageTk
+
+# Color palette
+COLORS = {
+    'dark_brown': '#4A2C2A',      # Cafe fuerte
+    'light_brown': '#8B5A2B',     # Cafe bajito
+    'beige': '#D4A574',           # Beige/cafe muy claro
+    'white': '#FFFFFF',
+    'light_gray': '#E8E8E8',
+    'gray': '#808080',
+    'dark_gray': '#404040',
+    'black': '#000000'
+}
 
 class ZAIConfigApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("clazai")
-        self.root.geometry("500x380")
+        self.root.title("clazai v. 1.0.0.1")
+        self.root.geometry("500x400")
         self.root.resizable(False, False)
+        self.root.configure(bg=COLORS['dark_brown'])
 
-        self.config_file = "zai_config.json"
+        # Configure root grid for centering
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_rowconfigure(0, weight=1)
+
+        # Set window icon
+        self.set_window_icon()
+
+        self.config_file = "clazai.json"
 
         # Autodetect user home directory
         self.claude_settings_path = Path.home() / ".claude" / "settings.json"
         self.is_active = False
 
+        self.setup_styles()
         self.setup_ui()
         self.load_config()
         self.check_activation_status()
 
+    def set_window_icon(self):
+        """Set the window icon from logo_clazai.png"""
+        try:
+            icon_path = Path(__file__).parent / "logo_clazai.png"
+            if icon_path.exists():
+                icon_image = Image.open(icon_path)
+                icon_photo = ImageTk.PhotoImage(icon_image)
+                self.root.iconphoto(True, icon_photo)
+                self.icon_photo = icon_photo  # Keep reference
+        except Exception as e:
+            print(f"Could not load icon: {e}")
+
+    def setup_styles(self):
+        """Configure ttk styles with custom colors"""
+        style = ttk.Style()
+        style.theme_use('clam')
+
+        # Configure frame style
+        style.configure('TFrame', background=COLORS['dark_brown'])
+
+        # Configure label styles
+        style.configure('TLabel',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['white'],
+                       font=('Arial', 10))
+
+        style.configure('Title.TLabel',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['white'],
+                       font=('Arial', 16, 'bold'))
+
+        style.configure('Subtitle.TLabel',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['light_gray'],
+                       font=('Arial', 9))
+
+        style.configure('Status.TLabel',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['gray'],
+                       font=('Arial', 9))
+
+        style.configure('Credit.TLabel',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['gray'],
+                       font=('Arial', 8))
+
+        # Configure button style
+        style.configure('TButton',
+                       background=COLORS['light_brown'],
+                       foreground=COLORS['white'],
+                       font=('Arial', 10),
+                       padding=6)
+        style.map('TButton',
+                 background=[('active', COLORS['beige']), ('pressed', COLORS['dark_gray'])],
+                 foreground=[('active', COLORS['black'])])
+
+        # Configure entry style
+        style.configure('TEntry',
+                       fieldbackground=COLORS['white'],
+                       foreground=COLORS['black'])
+
+        # Configure checkbutton style
+        style.configure('TCheckbutton',
+                       background=COLORS['dark_brown'],
+                       foreground=COLORS['white'])
+
+        # Configure separator
+        style.configure('TSeparator', background=COLORS['light_brown'])
+
     def setup_ui(self):
         main_frame = ttk.Frame(self.root, padding="20")
-        main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+        main_frame.grid(row=0, column=0)
+
+        # Configure main_frame columns for centering
+        main_frame.grid_columnconfigure(0, weight=1)
+        main_frame.grid_columnconfigure(1, weight=1)
+
+        # Title frame for clazai + version
+        title_frame = ttk.Frame(main_frame)
+        title_frame.grid(row=0, column=0, columnspan=2, pady=(0, 5))
 
         title_label = ttk.Label(
-            main_frame,
+            title_frame,
             text="clazai",
-            font=("Arial", 16, "bold")
+            style='Title.TLabel'
         )
-        title_label.grid(row=0, column=0, columnspan=2, pady=(0, 5))
+        title_label.pack(side=tk.LEFT)
+
+        version_label = ttk.Label(
+            title_frame,
+            text="  v. 1.0.0.1",
+            style='Subtitle.TLabel'
+        )
+        version_label.pack(side=tk.LEFT, pady=(4, 0))
 
         subtitle_label = ttk.Label(
             main_frame,
             text="claude code to z.ai toggle",
-            font=("Arial", 9),
-            foreground="gray"
+            style='Subtitle.TLabel'
         )
         subtitle_label.grid(row=1, column=0, columnspan=2, pady=(0, 15))
 
         api_label = ttk.Label(main_frame, text="API Token:")
-        api_label.grid(row=2, column=0, sticky=tk.W, pady=5)
+        api_label.grid(row=2, column=0, sticky=tk.E, pady=5, padx=(0, 5))
 
         self.api_entry = ttk.Entry(main_frame, width=40, show="*")
-        self.api_entry.grid(row=2, column=1, pady=5, padx=(10, 0))
+        self.api_entry.grid(row=2, column=1, pady=5, sticky=tk.W)
 
         self.show_var = tk.BooleanVar()
         show_check = ttk.Checkbutton(
@@ -53,7 +158,7 @@ class ZAIConfigApp:
             variable=self.show_var,
             command=self.toggle_show_token
         )
-        show_check.grid(row=3, column=1, sticky=tk.W, padx=(10, 0))
+        show_check.grid(row=3, column=1, sticky=tk.W)
 
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(row=4, column=0, columnspan=2, pady=20)
@@ -93,7 +198,8 @@ class ZAIConfigApp:
         claude_label = ttk.Label(
             claude_frame,
             text="Claude Code Integration:",
-            font=("Arial", 10, "bold")
+            font=("Arial", 10, "bold"),
+            foreground=COLORS['beige']
         )
         claude_label.grid(row=0, column=0, pady=5)
 
@@ -114,12 +220,12 @@ class ZAIConfigApp:
         self.activation_status_label.grid(row=2, column=0)
 
         status_frame = ttk.Frame(main_frame)
-        status_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E))
+        status_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(10, 0))
 
         self.status_label = ttk.Label(
             status_frame,
             text="",
-            foreground="gray"
+            style='Status.TLabel'
         )
         self.status_label.grid(row=0, column=0, sticky=tk.W)
 
@@ -127,8 +233,7 @@ class ZAIConfigApp:
         credit_label = ttk.Label(
             status_frame,
             text="Made by @cisnerosnow",
-            font=("Arial", 8),
-            foreground="gray"
+            style='Credit.TLabel'
         )
         credit_label.grid(row=0, column=1, sticky=tk.E)
 
@@ -150,7 +255,7 @@ class ZAIConfigApp:
                     self.api_entry.insert(0, config.get('api_token', ''))
                     self.status_label.config(
                         text="Configuration loaded",
-                        foreground="green"
+                        foreground=COLORS['beige']
                     )
             except Exception as e:
                 messagebox.showerror("Error", f"Error loading configuration: {str(e)}")
@@ -170,7 +275,7 @@ class ZAIConfigApp:
 
             self.status_label.config(
                 text="Configuration saved successfully!",
-                foreground="green"
+                foreground=COLORS['beige']
             )
             messagebox.showinfo("Success", "API token saved successfully!")
         except Exception as e:
@@ -178,13 +283,18 @@ class ZAIConfigApp:
 
     def clear_config(self):
         self.api_entry.delete(0, tk.END)
-        self.status_label.config(text="", foreground="gray")
+        self.status_label.config(text="", foreground=COLORS['gray'])
 
     def show_help(self):
         help_window = tk.Toplevel(self.root)
         help_window.title("How to get Z.AI API Key")
-        help_window.geometry("450x300")
+        help_window.geometry("450x320")
         help_window.resizable(False, False)
+        help_window.configure(bg=COLORS['dark_brown'])
+
+        # Set icon for help window too
+        if hasattr(self, 'icon_photo'):
+            help_window.iconphoto(True, self.icon_photo)
 
         help_window.transient(self.root)
         help_window.grab_set()
@@ -195,7 +305,8 @@ class ZAIConfigApp:
         title = ttk.Label(
             main_frame,
             text="How to get your Z.AI API Key",
-            font=("Arial", 12, "bold")
+            font=("Arial", 12, "bold"),
+            foreground=COLORS['beige']
         )
         title.pack(pady=(0, 15))
 
@@ -261,13 +372,13 @@ class ZAIConfigApp:
             self.toggle_button.config(text="Desactivar")
             self.activation_status_label.config(
                 text="Estado: Activado",
-                foreground="green"
+                foreground=COLORS['beige']
             )
         else:
             self.toggle_button.config(text="Activar")
             self.activation_status_label.config(
                 text="Estado: Desactivado",
-                foreground="red"
+                foreground=COLORS['light_gray']
             )
 
     def toggle_activation(self):
@@ -308,9 +419,9 @@ class ZAIConfigApp:
             settings['env']['ANTHROPIC_AUTH_TOKEN'] = api_token
             settings['env']['ANTHROPIC_BASE_URL'] = 'https://api.z.ai/api/anthropic'
             settings['env']['API_TIMEOUT_MS'] = '3000000'
-            settings['env']['ANTHROPIC_DEFAULT_HAIKU_MODEL'] = 'glm-4.5-air'
-            settings['env']['ANTHROPIC_DEFAULT_SONNET_MODEL'] = 'glm-4.6'
-            settings['env']['ANTHROPIC_DEFAULT_OPUS_MODEL'] = 'glm-4.6'
+            settings['env']['ANTHROPIC_DEFAULT_HAIKU_MODEL'] = 'glm-4.7'
+            settings['env']['ANTHROPIC_DEFAULT_SONNET_MODEL'] = 'glm-4.7'
+            settings['env']['ANTHROPIC_DEFAULT_OPUS_MODEL'] = 'glm-4.7'
 
             # Write settings
             with open(self.claude_settings_path, 'w', encoding='utf-8') as f:
