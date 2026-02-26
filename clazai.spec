@@ -5,7 +5,7 @@ a = Analysis(
     ['clazai.py'],
     pathex=[],
     binaries=[],
-    datas=[('logo_clazai.png', '.'), ('logo_clazai.ico', '.')],
+    datas=[('logo_clazai.png', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -35,5 +35,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='logo_clazai.ico',
+    icon=['logo_clazai.png'],
 )

@@ -14,6 +14,8 @@ Una aplicación GUI para configurar e integrar Z.AI con Claude Code fácilmente.
 ## 🚀 Características
 
 - **Configuración de API Token**: Ingresa y guarda tu token API de Z.AI de forma segura
+- **Selector de modelo GLM**: Elige entre GLM 5, GLM 4.7 o GLM 4.6
+- **Memoria del último modelo**: Recuerda automáticamente el último modelo activado
 - **Seguridad**: El token se oculta por defecto con opción de mostrar
 - **Integración con Claude Code**: Botón toggle para activar/desactivar Z.AI con un solo clic
 - **Detección automática**: Detecta automáticamente el directorio del usuario
@@ -77,12 +79,14 @@ Al activar Z.AI, el programa configura automáticamente las siguientes variables
         "ANTHROPIC_AUTH_TOKEN": "tu_token_aqui",
         "ANTHROPIC_BASE_URL": "https://api.z.ai/api/anthropic",
         "API_TIMEOUT_MS": "3000000",
-        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-4.7",
-        "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-4.7",
-        "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-4.7"
+        "ANTHROPIC_DEFAULT_HAIKU_MODEL": "glm-5",
+        "ANTHROPIC_DEFAULT_SONNET_MODEL": "glm-5",
+        "ANTHROPIC_DEFAULT_OPUS_MODEL": "glm-5"
     }
 }
 ```
+
+> **Nota**: Puedes seleccionar entre GLM 5, GLM 4.7 o GLM 4.6 desde la aplicación. El programa recordará automáticamente el último modelo que activaste.
 
 ## 📁 Archivos
 

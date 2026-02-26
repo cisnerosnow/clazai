@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 
 MODEL_MAP = {
     'GLM 5': 'glm-5',
+    'GLM 4.7': 'glm-4.7',
     'GLM 4.6': 'glm-4.6'
 }
 
@@ -25,7 +26,7 @@ COLORS = {
 class ZAIConfigApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("clazai v. 1.0.0.2")
+        self.root.title("clazai v. 1.0.0.3")
         self.root.geometry("500x440")
         self.root.resizable(False, False)
         self.root.configure(bg=COLORS['dark_brown'])
@@ -149,7 +150,7 @@ class ZAIConfigApp:
 
         version_label = ttk.Label(
             title_frame,
-            text="  v. 1.0.0.2",
+            text="  v. 1.0.0.3",
             style='Subtitle.TLabel'
         )
         version_label.pack(side=tk.LEFT, pady=(4, 0))
@@ -183,7 +184,7 @@ class ZAIConfigApp:
         model_combo = ttk.Combobox(
             main_frame,
             textvariable=self.model_var,
-            values=['GLM 5', 'GLM 4.6'],
+            values=['GLM 5', 'GLM 4.7', 'GLM 4.6'],
             state='readonly',
             width=10
         )
@@ -465,6 +466,9 @@ class ZAIConfigApp:
             # Write settings
             with open(self.claude_settings_path, 'w', encoding='utf-8') as f:
                 json.dump(settings, f, indent=4)
+
+            # Also save to clazai.json to remember last model
+            self.save_config()
 
             self.is_active = True
             self.update_activation_ui()
