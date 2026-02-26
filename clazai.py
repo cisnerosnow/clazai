@@ -49,9 +49,13 @@ class ZAIConfigApp:
         self.check_activation_status()
 
     def set_window_icon(self):
-        """Set the window icon from logo_clazai.png"""
+        """Set the window icon from logo_clazai.ico (preferred) or .png (fallback)"""
         try:
-            icon_path = Path(__file__).parent / "logo_clazai.png"
+            # Try ICO first (better for Windows)
+            icon_path = Path(__file__).parent / "logo_clazai.ico"
+            if not icon_path.exists():
+                icon_path = Path(__file__).parent / "logo_clazai.png"
+
             if icon_path.exists():
                 icon_image = Image.open(icon_path)
                 icon_photo = ImageTk.PhotoImage(icon_image)
