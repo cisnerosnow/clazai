@@ -5,6 +5,11 @@ import os
 from pathlib import Path
 from PIL import Image, ImageTk
 
+MODEL_MAP = {
+    'GLM 5': 'glm-5',
+    'GLM 4.6': 'glm-4.6'
+}
+
 # Color palette
 COLORS = {
     'dark_brown': '#4A2C2A',      # Cafe fuerte
@@ -21,7 +26,7 @@ class ZAIConfigApp:
     def __init__(self, root):
         self.root = root
         self.root.title("clazai v. 1.0.0.1")
-        self.root.geometry("500x400")
+        self.root.geometry("500x440")
         self.root.resizable(False, False)
         self.root.configure(bg=COLORS['dark_brown'])
 
@@ -109,6 +114,13 @@ class ZAIConfigApp:
                        background=COLORS['dark_brown'],
                        foreground=COLORS['white'])
 
+        # Configure combobox style
+        style.configure('TCombobox',
+                       fieldbackground=COLORS['white'],
+                       foreground=COLORS['black'],
+                       selectbackground=COLORS['light_brown'],
+                       selectforeground=COLORS['white'])
+
         # Configure separator
         style.configure('TSeparator', background=COLORS['light_brown'])
 
@@ -160,8 +172,21 @@ class ZAIConfigApp:
         )
         show_check.grid(row=3, column=1, sticky=tk.W)
 
+        model_label = ttk.Label(main_frame, text="Modelo GLM:")
+        model_label.grid(row=4, column=0, sticky=tk.E, pady=5, padx=(0, 5))
+
+        self.model_var = tk.StringVar(value='GLM 5')
+        model_combo = ttk.Combobox(
+            main_frame,
+            textvariable=self.model_var,
+            values=['GLM 5', 'GLM 4.6'],
+            state='readonly',
+            width=10
+        )
+        model_combo.grid(row=4, column=1, sticky=tk.W)
+
         button_frame = ttk.Frame(main_frame)
-        button_frame.grid(row=4, column=0, columnspan=2, pady=20)
+        button_frame.grid(row=5, column=0, columnspan=2, pady=20)
 
         save_button = ttk.Button(
             button_frame,
@@ -189,11 +214,11 @@ class ZAIConfigApp:
 
         # Separator
         separator = ttk.Separator(main_frame, orient='horizontal')
-        separator.grid(row=5, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=15)
+        separator.grid(row=6, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=15)
 
         # Claude Integration Frame
         claude_frame = ttk.Frame(main_frame)
-        claude_frame.grid(row=6, column=0, columnspan=2, pady=10)
+        claude_frame.grid(row=7, column=0, columnspan=2, pady=10)
 
         claude_label = ttk.Label(
             claude_frame,
@@ -220,7 +245,7 @@ class ZAIConfigApp:
         self.activation_status_label.grid(row=2, column=0)
 
         status_frame = ttk.Frame(main_frame)
-        status_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(10, 0))
+        status_frame.grid(row=8, column=0, columnspan=2, sticky=(tk.W, tk.E), pady=(10, 0))
 
         self.status_label = ttk.Label(
             status_frame,
@@ -253,6 +278,9 @@ class ZAIConfigApp:
                 with open(self.config_file, 'r') as f:
                     config = json.load(f)
                     self.api_entry.insert(0, config.get('api_token', ''))
+                    saved_model = config.get('model', 'GLM 5')
+                    if saved_model in MODEL_MAP:
+                        self.model_var.set(saved_model)
                     self.status_label.config(
                         text="Configuration loaded",
                         foreground=COLORS['beige']
@@ -267,7 +295,10 @@ class ZAIConfigApp:
             messagebox.showwarning("Warning", "Please enter an API token")
             return
 
-        config = {'api_token': api_token}
+        config = {
+            'api_token': api_token,
+            'model': self.model_var.get()
+        }
 
         try:
             with open(self.config_file, 'w') as f:
@@ -355,6 +386,9 @@ class ZAIConfigApp:
                     if (env.get('ANTHROPIC_BASE_URL') == 'https://api.z.ai/api/anthropic' and
                         'ANTHROPIC_AUTH_TOKEN' in env and
                         'ANTHROPIC_DEFAULT_HAIKU_MODEL' in env):
+                        current_model = env.get('ANTHROPIC_DEFAULT_HAIKU_MODEL', 'glm-5')
+                        reverse_map = {v: k for k, v in MODEL_MAP.items()}
+                        self.model_var.set(reverse_map.get(current_model, 'GLM 5'))
                         self.is_active = True
                         self.update_activation_ui()
                         return
@@ -416,12 +450,13 @@ class ZAIConfigApp:
             if 'env' not in settings:
                 settings['env'] = {}
 
+            model = MODEL_MAP.get(self.model_var.get(), 'glm-5')
             settings['env']['ANTHROPIC_AUTH_TOKEN'] = api_token
             settings['env']['ANTHROPIC_BASE_URL'] = 'https://api.z.ai/api/anthropic'
             settings['env']['API_TIMEOUT_MS'] = '3000000'
-            settings['env']['ANTHROPIC_DEFAULT_HAIKU_MODEL'] = 'glm-4.7'
-            settings['env']['ANTHROPIC_DEFAULT_SONNET_MODEL'] = 'glm-4.7'
-            settings['env']['ANTHROPIC_DEFAULT_OPUS_MODEL'] = 'glm-4.7'
+            settings['env']['ANTHROPIC_DEFAULT_HAIKU_MODEL'] = model
+            settings['env']['ANTHROPIC_DEFAULT_SONNET_MODEL'] = model
+            settings['env']['ANTHROPIC_DEFAULT_OPUS_MODEL'] = model
 
             # Write settings
             with open(self.claude_settings_path, 'w', encoding='utf-8') as f:
