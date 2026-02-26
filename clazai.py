@@ -25,7 +25,7 @@ COLORS = {
 class ZAIConfigApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("clazai v. 1.0.0.1")
+        self.root.title("clazai v. 1.0.0.2")
         self.root.geometry("500x440")
         self.root.resizable(False, False)
         self.root.configure(bg=COLORS['dark_brown'])
@@ -149,7 +149,7 @@ class ZAIConfigApp:
 
         version_label = ttk.Label(
             title_frame,
-            text="  v. 1.0.0.1",
+            text="  v. 1.0.0.2",
             style='Subtitle.TLabel'
         )
         version_label.pack(side=tk.LEFT, pady=(4, 0))
